@@ -1,9 +1,6 @@
 const categoryDB = require("../models/categorySchema");
 const productDB = require("../models/productschmea");
 
-
-
-
 const Addproduct = async (req, res) => {
   const { productname, quantity, prize, discription, image, category } =
     req.body.data;
@@ -19,10 +16,6 @@ const Addproduct = async (req, res) => {
   await productata.save();
   return res.status(200).send({ success: true });
 };
-
-
-
-
 
 const CreateCategory = async (req, res) => {
   let parentCategory = req.body.parentCategory;
@@ -74,9 +67,6 @@ const CreateCategory = async (req, res) => {
   }
 };
 
-
-
-
 const getCategory = async (req, res) => {
   let category = await categoryDB.find({});
   return res.status(200).send({ category, success: true });
@@ -85,42 +75,42 @@ const getCategory = async (req, res) => {
 const getparentcategory = async (req, res) => {
   let parentcategory = await categoryDB.find({ path: "0" });
 
-  return res.status(200).send({ parentcategory, success: true });
+  let categoryid = parentcategory[0]._id;
+
+  return res.status(200).send({ parentcategory, categoryid, success: true });
 };
 
 const getproducts = async (req, res) => {
   let porducts = await productDB.find({});
-
   return res.status(200).send({ porducts, success: true });
 };
 
+const getsubproduct = async (req, res) => {
+  let regexPattern;
+  const subcategoryid = req.body.categryId;
 
-
-
-
-const getsubproduct = (req, res) => {
-  console.log(req.body, "just check");
-  const categoryId = req.body.categryId;
-  console.log(categoryId, "last check");
-
-  categoryDB
-    .find({
-      $or: [{ _id: categoryId }, { path: { $regex: `^${categoryId}/` } }],
-    })
-    .exec()
-    .then((categories) => {
-    
-      const subcategoryIds = categories.map((category) => category._id);
-      console.log(subcategoryIds, "sucessssss");
-      return Product.find({ category: { $in: subcategoryIds } }).exec();
-    })
-    .then((products) => {
-      // You have the list of products associated with the specified category and its subcategories
-      // Handle and return the products as needed
-    })
-    .catch((err) => {
-      // Handle any errors that occur during the query
+  const catogory = await categoryDB.find({ _id: subcategoryid });
+  const catname = catogory[0].categoryname;
+  if (catname == "Electronics") {
+    const subcategory = await categoryDB.find();
+    const products = await productDB.find();
+    return res
+      .status(200)
+      .send({ subcategory, products, catname, success: true });
+  } else {
+    regexPattern = new RegExp(`.*${subcategoryid}.*`);
+    const subcategory = await categoryDB.find({
+      path: { $regex: regexPattern },
     });
+    const subcategoryIds = subcategory.map((category) => category.categoryname);
+    const products = await productDB.find({
+      Category: { $in: subcategoryIds },
+    });
+
+    return res
+      .status(200)
+      .send({ subcategory, products, catname, success: true });
+  }
 };
 
 module.exports = {
