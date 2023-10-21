@@ -109,15 +109,17 @@ const getsubproduct = (req, res) => {
     })
     .exec()
     .then((categories) => {
+    
       const subcategoryIds = categories.map((category) => category._id);
       console.log(subcategoryIds, "sucessssss");
       return Product.find({ category: { $in: subcategoryIds } }).exec();
     })
     .then((products) => {
-      d
+      // You have the list of products associated with the specified category and its subcategories
+      // Handle and return the products as needed
     })
     .catch((err) => {
-      
+      // Handle any errors that occur during the query
     });
 };
 
