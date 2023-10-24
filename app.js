@@ -16,7 +16,15 @@ const app = express();
 app.use(bodyParser.json({ limit: "300kb" }));
 connectDb(DATABASE_URL);
 
-app.use(cors());
+const corsOptions = {
+    origin: "https://main.d1dfh79902i40l.amplifyapp.com/",
+    credentials: true,
+    optionSuccessStatus: 200,
+  };
+
+app.use(cors(corsOptions));
+
+// app.use(cors());
 app.use(express.json());
 app.use(logger("dev"));
 app.use(express.urlencoded({ extended: true }));
